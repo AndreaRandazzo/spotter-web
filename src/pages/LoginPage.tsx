@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { Link } from "react-router";
 import { AxiosError } from "axios";
 import { useAuth } from "../auth/useAuth";
 
@@ -89,6 +90,16 @@ export default function LoginPage() {
             {submitting ? "Accesso in corso…" : "Accedi"}
           </button>
         </form>
+
+        <p className="text-center text-sm text-stone-400 mt-6">
+          Non hai un account?{" "}
+          <Link
+            to="/register"
+            className="text-stone-200 hover:text-white transition-colors"
+          >
+            Registrati
+          </Link>
+        </p>
       </div>
     </div>
   );
