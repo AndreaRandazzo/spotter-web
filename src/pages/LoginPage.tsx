@@ -5,19 +5,49 @@ import { useAuth } from "../auth/useAuth";
 import FormField from "../ui/FormField";
 import Button from "../ui/Button";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type FieldName = "email" | "password";
+
+function validate(fields: {
+  email: string;
+  password: string;
+}): Partial<Record<FieldName, string>> {
+  const errors: Partial<Record<FieldName, string>> = {};
+
+  if (!fields.email.trim()) {
+    errors.email = "L'email è obbligatoria";
+  } else if (!EMAIL_REGEX.test(fields.email)) {
+    errors.email = "Inserisci un'email valida";
+  }
+
+  if (!fields.password) {
+    errors.password = "La password è obbligatoria";
+  }
+
+  return errors;
+}
+
 export default function LoginPage() {
   const { login } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<
+    Partial<Record<FieldName, string>>
+  >({});
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
-    setSubmitting(true);
 
+    const errors = validate({ email, password });
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
+    setSubmitting(true);
     try {
       await login(email, password);
     } catch (err) {
@@ -48,8 +78,8 @@ export default function LoginPage() {
             type="email"
             value={email}
             onChange={setEmail}
+            error={fieldErrors.email}
             autoComplete="email"
-            required
           />
 
           <FormField
@@ -58,8 +88,8 @@ export default function LoginPage() {
             type="password"
             value={password}
             onChange={setPassword}
+            error={fieldErrors.password}
             autoComplete="current-password"
-            required
           />
 
           {error && (
