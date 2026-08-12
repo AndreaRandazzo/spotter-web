@@ -3,6 +3,8 @@ import { Link } from "react-router";
 import { AxiosError } from "axios";
 import { useAuth } from "../auth/useAuth";
 import type { ApiErrorResponse } from "../types/auth";
+import FormField from "../ui/FormField";
+import Button from "../ui/Button";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -121,115 +123,53 @@ export default function RegisterPage() {
         <p className="text-sm text-stone-400 mb-8">Crea il tuo account</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="firstName"
-              className="block text-sm font-medium text-stone-300 mb-1.5"
-            >
-              Nome
-            </label>
-            <input
-              id="firstName"
-              type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              autoComplete="given-name"
-              className="w-full rounded-md border border-stone-700 bg-stone-900 px-3 py-2 text-stone-100 placeholder-stone-600 focus:border-stone-500 focus:outline-none"
-            />
-            {fieldErrors.firstName && (
-              <p role="alert" className="text-sm text-red-400 mt-1">
-                {fieldErrors.firstName}
-              </p>
-            )}
-          </div>
+          <FormField
+            id="firstName"
+            label="Nome"
+            value={firstName}
+            onChange={setFirstName}
+            error={fieldErrors.firstName}
+            autoComplete="given-name"
+          />
 
-          <div>
-            <label
-              htmlFor="lastName"
-              className="block text-sm font-medium text-stone-300 mb-1.5"
-            >
-              Cognome
-            </label>
-            <input
-              id="lastName"
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              autoComplete="family-name"
-              className="w-full rounded-md border border-stone-700 bg-stone-900 px-3 py-2 text-stone-100 placeholder-stone-600 focus:border-stone-500 focus:outline-none"
-            />
-            {fieldErrors.lastName && (
-              <p role="alert" className="text-sm text-red-400 mt-1">
-                {fieldErrors.lastName}
-              </p>
-            )}
-          </div>
+          <FormField
+            id="lastName"
+            label="Cognome"
+            value={lastName}
+            onChange={setLastName}
+            error={fieldErrors.lastName}
+            autoComplete="family-name"
+          />
 
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-stone-300 mb-1.5"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              className="w-full rounded-md border border-stone-700 bg-stone-900 px-3 py-2 text-stone-100 placeholder-stone-600 focus:border-stone-500 focus:outline-none"
-            />
-            {fieldErrors.email && (
-              <p role="alert" className="text-sm text-red-400 mt-1">
-                {fieldErrors.email}
-              </p>
-            )}
-          </div>
+          <FormField
+            id="email"
+            label="Email"
+            type="email"
+            value={email}
+            onChange={setEmail}
+            error={fieldErrors.email}
+            autoComplete="email"
+          />
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-stone-300 mb-1.5"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-              className="w-full rounded-md border border-stone-700 bg-stone-900 px-3 py-2 text-stone-100 placeholder-stone-600 focus:border-stone-500 focus:outline-none"
-            />
-            {fieldErrors.password && (
-              <p role="alert" className="text-sm text-red-400 mt-1">
-                {fieldErrors.password}
-              </p>
-            )}
-          </div>
+          <FormField
+            id="password"
+            label="Password"
+            type="password"
+            value={password}
+            onChange={setPassword}
+            error={fieldErrors.password}
+            autoComplete="new-password"
+          />
 
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-stone-300 mb-1.5"
-            >
-              Conferma password
-            </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              autoComplete="new-password"
-              className="w-full rounded-md border border-stone-700 bg-stone-900 px-3 py-2 text-stone-100 placeholder-stone-600 focus:border-stone-500 focus:outline-none"
-            />
-            {fieldErrors.confirmPassword && (
-              <p role="alert" className="text-sm text-red-400 mt-1">
-                {fieldErrors.confirmPassword}
-              </p>
-            )}
-          </div>
+          <FormField
+            id="confirmPassword"
+            label="Conferma password"
+            type="password"
+            value={confirmPassword}
+            onChange={setConfirmPassword}
+            error={fieldErrors.confirmPassword}
+            autoComplete="new-password"
+          />
 
           {genericError && (
             <p role="alert" className="text-sm text-red-400">
@@ -237,13 +177,9 @@ export default function RegisterPage() {
             </p>
           )}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full rounded-md bg-stone-100 px-4 py-2.5 font-medium text-stone-950 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
-          >
+          <Button type="submit" disabled={submitting}>
             {submitting ? "Registrazione in corso…" : "Registrati"}
-          </button>
+          </Button>
         </form>
 
         <p className="text-center text-sm text-stone-400 mt-6">

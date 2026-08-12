@@ -12,9 +12,9 @@ Il PT vede sessioni, carichi e progressi dei propri clienti.
 
 ## Comandi
 
-- `npm run dev` — dev server (richiede `VITE_API_URL` in `.env.local`, vedi `.env.example`)
-- `npm run build` — type-check + build di produzione
-- `npm run lint` — ESLint
+- `pnpm dev` — dev server (richiede `VITE_API_URL` in `.env.local`, vedi `.env.example`)
+- `pnpm build` — type-check + build di produzione
+- `pnpm lint` — ESLint
 - `npx tsc -b --noEmit` — type-check senza build
 
 ## Struttura cartelle
@@ -25,14 +25,21 @@ Organizzazione per feature, non per tipo di file:
 src/
   api/          # Client axios e funzioni di chiamata API
     client.ts   # Istanza axios, interceptor token e 401
-    auth.ts     # login(), getCurrentUser()
+    auth.ts     # login(), register(), getCurrentUser()
   auth/         # Logica di autenticazione React
-    AuthContext.tsx  # Provider con user, loading, login, logout
-    useAuth.ts      # Hook per consumare il context
+    AuthContext.tsx    # Provider con user, loading, login, register, logout
+    useAuth.ts        # Hook per consumare il context
+    ProtectedRoute.tsx  # Guardia rotte autenticate → redirect a /login
+    GuestRoute.tsx      # Guardia rotte guest → redirect a /
   types/        # Tipi TypeScript che rispecchiano i DTO Java
     auth.ts
+  ui/           # Primitivi UI riusabili (atomi di design system, non logica di feature)
+    FormField.tsx   # Label + input + errore
+    Button.tsx      # Bottone primario
   pages/        # Componenti pagina (uno per rotta)
     LoginPage.tsx
+    RegisterPage.tsx
+    DashboardPage.tsx
 ```
 
 Quando aggiungi una nuova feature, crea la sua cartella sotto `src/` con i propri
@@ -43,7 +50,7 @@ in `src/hooks/`, tutti i componenti in `src/components/`).
 
 1. `AuthProvider` (mount) — se c'è un token in `localStorage`, chiama `GET /api/users/me`
    per ripristinare la sessione. Mostra `loading=true` durante il tentativo.
-2. Login — `POST /api/auth/login` → salva il token → `GET /api/users/me` → setta `user`
+2. Login/Register — `POST /api/auth/login` o `/register` → salva il token → `GET /api/users/me` → setta `user`
 3. Interceptor request — aggiunge `Authorization: Bearer <token>` a ogni richiesta
 4. Interceptor response — su 401 (escluse rotte `/api/auth/**`): rimuove il token,
    redirect a `/` con reload completo per stato pulito

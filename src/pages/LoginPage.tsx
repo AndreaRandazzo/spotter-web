@@ -2,6 +2,8 @@ import { useState, type FormEvent } from "react";
 import { Link } from "react-router";
 import { AxiosError } from "axios";
 import { useAuth } from "../auth/useAuth";
+import FormField from "../ui/FormField";
+import Button from "../ui/Button";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -40,41 +42,25 @@ export default function LoginPage() {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-stone-300 mb-1.5"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-              className="w-full rounded-md border border-stone-700 bg-stone-900 px-3 py-2 text-stone-100 placeholder-stone-600 focus:border-stone-500 focus:outline-none"
-            />
-          </div>
+          <FormField
+            id="email"
+            label="Email"
+            type="email"
+            value={email}
+            onChange={setEmail}
+            autoComplete="email"
+            required
+          />
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-stone-300 mb-1.5"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-              className="w-full rounded-md border border-stone-700 bg-stone-900 px-3 py-2 text-stone-100 placeholder-stone-600 focus:border-stone-500 focus:outline-none"
-            />
-          </div>
+          <FormField
+            id="password"
+            label="Password"
+            type="password"
+            value={password}
+            onChange={setPassword}
+            autoComplete="current-password"
+            required
+          />
 
           {error && (
             <p role="alert" className="text-sm text-red-400">
@@ -82,13 +68,9 @@ export default function LoginPage() {
             </p>
           )}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full rounded-md bg-stone-100 px-4 py-2.5 font-medium text-stone-950 hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
-          >
+          <Button type="submit" disabled={submitting}>
             {submitting ? "Accesso in corso…" : "Accedi"}
-          </button>
+          </Button>
         </form>
 
         <p className="text-center text-sm text-stone-400 mt-6">
