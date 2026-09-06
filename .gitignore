@@ -23,4 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# Local overrides may hold anything, including secrets: never commit them.
+# .env.production is tracked on purpose: it carries only VITE_API_URL, which
+# Vite bakes into the client bundle and is therefore public by construction.
+.env
 .env.local
+.env*.local
