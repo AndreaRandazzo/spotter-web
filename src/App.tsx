@@ -9,6 +9,7 @@ import DashboardPage from "./pages/DashboardPage";
 import PlanPage from "./pages/PlanPage";
 import SessionHistoryPage from "./pages/SessionHistoryPage";
 import SessionDetailPage from "./pages/SessionDetailPage";
+import LoggingPage from "./pages/LoggingPage";
 
 export default function App() {
   const { loading } = useAuth();
@@ -35,17 +36,7 @@ export default function App() {
             <Route path="/plan" element={<PlanPage />} />
             <Route path="/sessions" element={<SessionHistoryPage />} />
             <Route path="/sessions/:id" element={<SessionDetailPage />} />
-            <Route
-              path="/train/:dayId"
-              element={
-                <div className="text-center py-20 text-stone-400">
-                  <p className="text-lg font-medium text-stone-200 mb-2">
-                    Logging sessione
-                  </p>
-                  <p>In arrivo nella prossima fetta.</p>
-                </div>
-              }
-            />
+            <Route path="/train/:dayId" element={<LoggingPage />} />
           </Route>
         </Route>
 
