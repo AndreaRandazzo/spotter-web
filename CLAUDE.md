@@ -24,8 +24,11 @@ Organizzazione per feature, non per tipo di file:
 ```
 src/
   api/          # Client axios e funzioni di chiamata API
-    client.ts   # Istanza axios, interceptor token e 401
+    client.ts   # Istanza axios, interceptor token e 401, timeout 60s
     auth.ts     # login(), register(), getCurrentUser()
+    coaching.ts # invite, accept, end, list
+    plans.ts    # createPlan, addDay, addExercise, getPlan, getMyPlan, listByAthlete
+    sessions.ts # startSession, logSet, deleteSet, complete, getSession, listSessions
   auth/         # Logica di autenticazione React
     AuthContext.tsx    # Provider con user, loading, login, register, logout
     useAuth.ts        # Hook per consumare il context
@@ -33,18 +36,40 @@ src/
     GuestRoute.tsx      # Guardia rotte guest → redirect a /
   types/        # Tipi TypeScript che rispecchiano i DTO Java
     auth.ts
+    common.ts         # Page<T> generico per risposte paginate
+    coaching.ts
+    plans.ts
+    sessions.ts
+  layout/       # Shell dell'app
+    AppLayout.tsx     # Navbar (link basati sul ruolo) + Outlet
   ui/           # Primitivi UI riusabili (atomi di design system, non logica di feature)
-    FormField.tsx   # Label + input + errore
-    Button.tsx      # Bottone primario
+    FormField.tsx     # Label + input + errore + toggle password
+    Button.tsx        # Bottone primario
+    LoadingScreen.tsx # Indicatore di caricamento con messaggio cold-start dopo 5s
   pages/        # Componenti pagina (uno per rotta)
     LoginPage.tsx
     RegisterPage.tsx
-    DashboardPage.tsx
+    DashboardPage.tsx       # Role split: ROLE_TRAINER → trainer, altrimenti → atleta
+    PlanPage.tsx            # Atleta: piano attivo con giorni ed esercizi
+    SessionHistoryPage.tsx  # Atleta: storico sessioni
+    SessionDetailPage.tsx   # Condivisa: dettaglio sessione con serie loggate
 ```
 
 Quando aggiungi una nuova feature, crea la sua cartella sotto `src/` con i propri
 componenti, hook, tipi e funzioni API. Non raggruppare per tipo (es. tutti gli hook
 in `src/hooks/`, tutti i componenti in `src/components/`).
+
+## Rotte
+
+```
+Guest:    /login, /register
+Protected (dentro AppLayout):
+  /                 DashboardPage (role split)
+  /plan             PlanPage (atleta: piano attivo)
+  /sessions         SessionHistoryPage (atleta: storico)
+  /sessions/:id     SessionDetailPage (condivisa)
+  /train/:dayId     LoggingPage (fetta 2 — placeholder per ora)
+```
 
 ## Flusso di autenticazione
 

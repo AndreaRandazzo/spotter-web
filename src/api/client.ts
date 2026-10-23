@@ -4,6 +4,7 @@ export const TOKEN_KEY = "spotter_token";
 
 const client = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
+  timeout: 60_000,
   headers: {
     "Content-Type": "application/json",
   },

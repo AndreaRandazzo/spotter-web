@@ -1,31 +1,18 @@
-import { createContext, useState, useEffect, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { login as loginApi, register as registerApi, getCurrentUser } from "../api/auth";
 import { TOKEN_KEY } from "../api/client";
 import type { RegisterRequest, UserResponse } from "../types/auth";
-
-interface AuthContextValue {
-  user: UserResponse | null;
-  loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (request: RegisterRequest) => Promise<void>;
-  logout: () => void;
-}
-
-export const AuthContext = createContext<AuthContextValue | undefined>(
-  undefined,
-);
+import { AuthContext } from "./context";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(
+    () => localStorage.getItem(TOKEN_KEY) !== null,
+  );
 
-  // On mount: if a token is already stored, try to restore the session.
   useEffect(() => {
     const token = localStorage.getItem(TOKEN_KEY);
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+    if (!token) return;
 
     getCurrentUser()
       .then(setUser)
