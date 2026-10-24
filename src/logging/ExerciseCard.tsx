@@ -19,7 +19,7 @@ interface ExerciseCardProps {
   onAddSet: () => void;
   onSaveSet: (setNumber: number, data: LogSetRequest) => void;
   onDeleteSet: (setNumber: number) => void;
-  getStatus: (setNumber: number) => "synced" | "pending" | "error";
+  getStatus: (setNumber: number) => "synced" | "pending" | "retrying" | "error";
   getError: (setNumber: number) => string | undefined;
   disabled: boolean;
 }

@@ -10,7 +10,7 @@ interface SetRowProps {
   draftKey: string;
   onSave: (data: LogSetRequest) => void;
   onDelete: () => void;
-  syncStatus: "synced" | "pending" | "error";
+  syncStatus: "synced" | "pending" | "retrying" | "error";
   errorMessage?: string;
 }
 
@@ -155,9 +155,9 @@ export default function SetRow({
   const statusDot =
     syncStatus === "synced"
       ? "bg-green-500"
-      : syncStatus === "pending"
-        ? "bg-amber-500 animate-pulse"
-        : "bg-red-500";
+      : syncStatus === "error"
+        ? "bg-red-500"
+        : "bg-amber-500 animate-pulse";
 
   return (
     <div className="flex items-center gap-2 py-2">

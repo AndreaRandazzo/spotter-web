@@ -7,6 +7,8 @@ interface EntryData {
   isWarmup?: boolean;
 }
 
+export type EntryStatus = "pending" | "inflight" | "retrying" | "error";
+
 export interface QueueEntry {
   type: EntryType;
   sessionId: string;
@@ -14,7 +16,7 @@ export interface QueueEntry {
   setNumber: number;
   data: EntryData | null;
   version: number;
-  status: "pending" | "error";
+  status: EntryStatus;
   errorMessage?: string;
   retryCount: number;
 }
@@ -45,10 +47,10 @@ export class AutoSaveQueue {
     this.#sendFn = sendFn;
     const entries = storage.load();
     this.#queue = new Map(
-      entries.map(([key, entry]) => [
-        key,
-        { ...entry, status: "pending" as const, retryCount: 0 },
-      ]),
+      entries.map(([key, entry]) => {
+        if (entry.status === "error") return [key, entry];
+        return [key, { ...entry, status: "pending" as const, retryCount: 0 }];
+      }),
     );
     this.flush();
   }
@@ -89,12 +91,12 @@ export class AutoSaveQueue {
   getEntryStatus(
     exerciseLogId: string,
     setNumber: number,
-  ): "synced" | "pending" | "error" {
+  ): "synced" | "pending" | "retrying" | "error" {
     const key = entryKey(exerciseLogId, setNumber);
     const entry = this.#queue.get(key);
     if (!entry) return "synced";
-    if (entry.status === "error") return "error";
-    return "pending";
+    if (entry.status === "inflight") return "pending";
+    return entry.status;
   }
 
   getEntryError(exerciseLogId: string, setNumber: number): string | undefined {
@@ -103,20 +105,15 @@ export class AutoSaveQueue {
   }
 
   get pendingCount(): number {
-    return [...this.#queue.values()].filter((e) => e.status === "pending")
-      .length;
+    return [...this.#queue.values()].filter((e) => e.status !== "error").length;
   }
 
   get errorCount(): number {
-    return [...this.#queue.values()].filter(
-      (e) =>
-        e.status === "error" &&
-        e.errorMessage !== "Errore di rete, riprovo…",
-    ).length;
+    return [...this.#queue.values()].filter((e) => e.status === "error").length;
   }
 
   get hasPending(): boolean {
-    return this.pendingCount > 0 || this.#inflightKeys.size > 0;
+    return [...this.#queue.values()].some((e) => e.status !== "error");
   }
 
   get needsReauth(): boolean {
@@ -132,6 +129,37 @@ export class AutoSaveQueue {
     return () => {
       this.#listeners.delete(listener);
     };
+  }
+
+  resume(): void {
+    this.#needsReauth = false;
+    for (const timer of this.#retryTimers.values()) {
+      clearTimeout(timer);
+    }
+    this.#retryTimers.clear();
+    for (const [key, entry] of this.#queue) {
+      if (entry.status !== "error") {
+        this.#queue.set(key, { ...entry, status: "pending", retryCount: 0 });
+      }
+    }
+    this.persist();
+    this.notify();
+    this.flush();
+  }
+
+  retryNow(): void {
+    for (const timer of this.#retryTimers.values()) {
+      clearTimeout(timer);
+    }
+    this.#retryTimers.clear();
+    for (const [key, entry] of this.#queue) {
+      if (entry.status === "retrying") {
+        this.#queue.set(key, { ...entry, status: "pending", retryCount: 0 });
+      }
+    }
+    this.persist();
+    this.notify();
+    this.flush();
   }
 
   dispose(): void {
@@ -158,6 +186,7 @@ export class AutoSaveQueue {
   send(key: string, entry: QueueEntry): void {
     const capturedVersion = entry.version;
     this.#inflightKeys.add(key);
+    this.#queue.set(key, { ...entry, status: "inflight" });
     this.notify();
 
     this.#sendFn(entry)
@@ -202,7 +231,7 @@ export class AutoSaveQueue {
             if (
               c &&
               c.version === capturedVersion &&
-              c.status === "error"
+              c.status === "retrying"
             ) {
               this.#queue.set(key, { ...c, status: "pending" });
               this.persist();
@@ -214,7 +243,7 @@ export class AutoSaveQueue {
 
           this.#queue.set(key, {
             ...current,
-            status: "error",
+            status: "retrying",
             errorMessage: "Errore di rete, riprovo…",
             retryCount: current.retryCount + 1,
           });

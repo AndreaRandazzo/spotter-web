@@ -9,6 +9,7 @@ import type { LogSetRequest } from "../types/sessions";
 import { useAutoSaveQueue } from "../logging/useAutoSaveQueue";
 import ExerciseCard from "../logging/ExerciseCard";
 import type { LocalSet } from "../logging/ExerciseCard";
+import { nextSetNumber } from "../logging/nextSetNumber";
 import LoadingScreen from "../ui/LoadingScreen";
 
 function sessionKey(userId: string, dayId: string) {
@@ -101,14 +102,10 @@ export default function LoggingPage() {
       setExerciseSets((prev) => {
         const next = new Map(prev);
         const sets = next.get(exerciseLogId) ?? [];
-        const maxNum = sets.reduce(
-          (max, s) => Math.max(max, s.setNumber),
-          0,
-        );
         next.set(exerciseLogId, [
           ...sets,
           {
-            setNumber: maxNum + 1,
+            setNumber: nextSetNumber(sets),
             reps: null,
             weight: null,
             rpe: null,
