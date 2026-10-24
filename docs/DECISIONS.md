@@ -16,6 +16,17 @@
 - Le chiavi localStorage della coda e della sessione attiva includono l'id utente: se cambia account, la coda di un altro non viene inviata.
 - Al caricamento da localStorage, le entry "in volo" tornano "da inviare" (le chiamate sono idempotenti, il reinvio è sicuro).
 
+### Estrazione in modulo TypeScript puro
+- La coda era inizialmente nell'hook `useAutoSaveQueue` — stato, retry, persistenza e logica di invio mescolati con React.
+- Problema: impossibile testarla senza montare componenti React; la complessità dell'hook cresceva con ogni feature (debounce, backoff, versionamento).
+- Soluzione: classe `AutoSaveQueue` in un modulo puro (`logging/AutoSaveQueue.ts`) con `QueueStorage` e `SendFn` iniettati. L'hook diventa un adattatore sottile che collega la classe a React via `useSyncExternalStore`.
+- Vantaggi: test unitari veloci con Vitest (12 test, ~40ms), logica riusabile, separazione netta tra dominio e UI.
+
+### Debounce + draft in localStorage
+- Il salvataggio on-blur non basta: su mobile il blur può non scattare (telefono bloccato, cambio app).
+- Ogni modifica scrive un draft in `localStorage` e accoda il salvataggio con debounce a 500ms; il blur forza l'invio immediato.
+- Al mount, se esiste un draft, viene accodato subito — i dati non si perdono nemmeno con un crash del browser.
+
 ### Gestione errori
 - **401**: la coda si ferma, flag `needsReauth`. Il token scaduto non svuota la coda. Dopo il re-login, la coda riprende.
 - **409** (sessione completata): l'entry resta visibile in errore con i suoi valori, mai rimossa in silenzio.

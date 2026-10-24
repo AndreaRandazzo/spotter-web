@@ -208,6 +208,7 @@ export default function LoggingPage() {
           .map((el) => (
             <ExerciseCard
               key={el.id}
+              sessionId={s.id}
               exerciseLogId={el.id}
               exerciseName={el.exerciseName}
               planExercise={findPlanExercise(el.exerciseId)}

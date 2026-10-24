@@ -11,6 +11,7 @@ interface LocalSet {
 }
 
 interface ExerciseCardProps {
+  sessionId: string;
   exerciseLogId: string;
   exerciseName: string;
   planExercise: PlanExercise | undefined;
@@ -24,6 +25,8 @@ interface ExerciseCardProps {
 }
 
 export default function ExerciseCard({
+  sessionId,
+  exerciseLogId,
   exerciseName,
   planExercise,
   sets,
@@ -72,6 +75,7 @@ export default function ExerciseCard({
               initialWeight={set.weight}
               initialRpe={set.rpe}
               initialIsWarmup={set.isWarmup}
+              draftKey={`spotter_draft_${sessionId}_${exerciseLogId}_${set.setNumber}`}
               onSave={(data) => onSaveSet(set.setNumber, data)}
               onDelete={() => onDeleteSet(set.setNumber)}
               syncStatus={getStatus(set.setNumber)}
